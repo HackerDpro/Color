@@ -1,4 +1,5 @@
 const imageInput = document.getElementById('imageInput');
+const cameraInput = document.getElementById('cameraInput');
 const photoCanvas = document.getElementById('photoCanvas');
 const canvasContainer = document.getElementById('canvasContainer');
 const selectionBox = document.getElementById('selectionBox');
@@ -547,7 +548,7 @@ copyButtons.forEach(button => {
   });
 });
 
-imageInput.addEventListener('change', event => {
+const handleFileSelection = event => {
   const file = event.target.files?.[0];
   if (!file) return;
   const url = URL.createObjectURL(file);
@@ -562,7 +563,10 @@ imageInput.addEventListener('change', event => {
     URL.revokeObjectURL(url);
   };
   image.src = url;
-});
+};
+
+imageInput.addEventListener('change', handleFileSelection);
+cameraInput.addEventListener('change', handleFileSelection);
 
 avgImageBtn.addEventListener('click', () => {
   if (!loadedImage) {

@@ -73,7 +73,13 @@ h1 {
   box-shadow: var(--shadow);
 }
 
-.upload-label {
+.upload-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.upload-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -87,17 +93,17 @@ h1 {
   background: rgba(255, 255, 255, 0.03);
 }
 
-.upload-label:hover {
+.upload-button:hover {
   border-color: rgba(56, 189, 248, 0.65);
   background: rgba(56, 189, 248, 0.08);
 }
 
-.upload-label span {
+.upload-button span {
   font-size: 1rem;
   font-weight: 600;
 }
 
-.upload-label input {
+.upload-button input {
   display: none;
 }
 

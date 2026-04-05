@@ -18,10 +18,16 @@
     </header>
 
     <section class="panel upload-panel">
-      <label class="upload-label" for="imageInput">
-        <span>Choose an image</span>
-        <input id="imageInput" type="file" accept="image/*" />
-      </label>
+      <div class="upload-actions">
+        <label class="upload-button" for="imageInput">
+          <span>Choose image</span>
+          <input id="imageInput" type="file" accept="image/*" hidden />
+        </label>
+        <label class="upload-button" for="cameraInput">
+          <span>Take photo</span>
+          <input id="cameraInput" type="file" accept="image/*" capture="environment" hidden />
+        </label>
+      </div>
     </section>
 
     <section class="panel image-panel">
