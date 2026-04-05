@@ -32,15 +32,17 @@
 
     <section class="panel image-panel">
       <div class="canvas-container" id="canvasContainer">
-        <canvas id="photoCanvas"></canvas>
-        <div id="selectionBox" class="selection-box hidden"></div>
+        <div class="canvas-view" id="canvasView">
+          <canvas id="photoCanvas"></canvas>
+          <div id="selectionBox" class="selection-box hidden"></div>
+        </div>
         <button id="resetZoomBtn" class="zoom-reset hidden" type="button">Reset zoom</button>
         <div id="canvasHint" class="canvas-hint">Upload an image to start.</div>
       </div>
 
       <div class="button-row">
         <button id="avgImageBtn" class="secondary-btn">Average color of image</button>
-        <button id="avgBoxBtn" class="secondary-btn">Average color from box</button>
+        <button id="avgBoxBtn" class="secondary-btn">Average color from selection</button>
         <button id="pixelBtn" class="secondary-btn">Pick pixel color</button>
       </div>
       <p id="modeText" class="mode-text">Upload an image to enable tools.</p>
@@ -112,6 +114,13 @@
         </div>
         <div class="result-card">
           <div class="card-top">
+            <span class="result-label">HCL</span>
+            <button class="copy-btn" type="button" data-copy-target="hclValue">Copy</button>
+          </div>
+          <strong id="hclValue">0°, 0, 100</strong>
+        </div>
+        <div class="result-card">
+          <div class="card-top">
             <span class="result-label">CMYK</span>
             <button class="copy-btn" type="button" data-copy-target="cmykValue">Copy</button>
           </div>
@@ -136,14 +145,21 @@
             <span class="result-label">YUV</span>
             <button class="copy-btn" type="button" data-copy-target="yuvValue">Copy</button>
           </div>
-          <strong id="yuvValue">255.00, 0.00, 0.00</strong>
+          <strong id="yuvValue">255, 0, 0</strong>
         </div>
         <div class="result-card">
           <div class="card-top">
             <span class="result-label">YCbCr</span>
             <button class="copy-btn" type="button" data-copy-target="ycbcrValue">Copy</button>
           </div>
-          <strong id="ycbcrValue">255.00, 128.00, 128.00</strong>
+          <strong id="ycbcrValue">255, 128, 128</strong>
+        </div>
+        <div class="result-card">
+          <div class="card-top">
+            <span class="result-label">RYB</span>
+            <button class="copy-btn" type="button" data-copy-target="rybValue">Copy</button>
+          </div>
+          <strong id="rybValue">rgb(255, 255, 255)</strong>
         </div>
         <div class="result-card">
           <div class="card-top">
@@ -217,17 +233,94 @@
         </div>
         <div class="result-card">
           <div class="card-top">
-            <span class="result-label">HCL</span>
-            <button class="copy-btn" type="button" data-copy-target="hclValue">Copy</button>
+            <span class="result-label">Luma</span>
+            <button class="copy-btn" type="button" data-copy-target="lumaValue">Copy</button>
           </div>
-          <strong id="hclValue">0°, 0, 100</strong>
+          <strong id="lumaValue">255.00</strong>
         </div>
         <div class="result-card">
           <div class="card-top">
-            <span class="result-label">RYB</span>
-            <button class="copy-btn" type="button" data-copy-target="rybValue">Copy</button>
+            <span class="result-label">Luminance</span>
+            <button class="copy-btn" type="button" data-copy-target="luminanceValue">Copy</button>
           </div>
-          <strong id="rybValue">rgb(255, 255, 255)</strong>
+          <strong id="luminanceValue">1.0000</strong>
+        </div>
+        <div class="result-card">
+          <div class="card-top">
+            <span class="result-label">Brightness</span>
+            <button class="copy-btn" type="button" data-copy-target="brightnessValue">Copy</button>
+          </div>
+          <strong id="brightnessValue">100%</strong>
+        </div>
+        <div class="result-card">
+          <div class="card-top">
+            <span class="result-label">Value</span>
+            <button class="copy-btn" type="button" data-copy-target="valueValue">Copy</button>
+          </div>
+          <strong id="valueValue">100%</strong>
+        </div>
+        <div class="result-card">
+          <div class="card-top">
+            <span class="result-label">Lightness</span>
+            <button class="copy-btn" type="button" data-copy-target="lightnessValue">Copy</button>
+          </div>
+          <strong id="lightnessValue">100%</strong>
+        </div>
+        <div class="result-card">
+          <div class="card-top">
+            <span class="result-label">Intensity</span>
+            <button class="copy-btn" type="button" data-copy-target="intensityValue">Copy</button>
+          </div>
+          <strong id="intensityValue">255</strong>
+        </div>
+        <div class="result-card">
+          <div class="card-top">
+            <span class="result-label">Chroma</span>
+            <button class="copy-btn" type="button" data-copy-target="chromaValue">Copy</button>
+          </div>
+          <strong id="chromaValue">0</strong>
+        </div>
+        <div class="result-card">
+          <div class="card-top">
+            <span class="result-label">Chrominance</span>
+            <button class="copy-btn" type="button" data-copy-target="chrominanceValue">Copy</button>
+          </div>
+          <strong id="chrominanceValue">0</strong>
+        </div>
+        <div class="result-card">
+          <div class="card-top">
+            <span class="result-label">Saturation</span>
+            <button class="copy-btn" type="button" data-copy-target="saturationValue">Copy</button>
+          </div>
+          <strong id="saturationValue">0%</strong>
+        </div>
+        <div class="result-card">
+          <div class="card-top">
+            <span class="result-label">Hue</span>
+            <button class="copy-btn" type="button" data-copy-target="hueValue">Copy</button>
+          </div>
+          <strong id="hueValue">0°</strong>
+        </div>
+        <div class="result-card">
+          <div class="card-top">
+            <span class="result-label">Alpha</span>
+            <button class="copy-btn" type="button" data-copy-target="alphaValue">Copy</button>
+          </div>
+          <strong id="alphaValue">1</strong>
+        </div>
+        <div class="result-card">
+          <div class="card-top">
+            <span class="result-label">Premultiplied Alpha</span>
+            <button class="copy-btn" type="button" data-copy-target="premultipliedValue">Copy</button>
+          </div>
+          <strong id="premultipliedValue">rgba(255, 255, 255, 1)</strong>
+        </div>
+        <div class="result-card">
+          <div class="card-top">
+            <span class="result-label">Straight Alpha</span>
+            <button class="copy-btn" type="button" data-copy-target="straightValue">Copy</button>
+          </div>
+          <strong id="straightValue">rgba(255, 255, 255, 1)</strong>
         </div>
       </div>
     </section>

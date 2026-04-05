@@ -1,6 +1,7 @@
 const imageInput = document.getElementById('imageInput');
 const cameraInput = document.getElementById('cameraInput');
 const photoCanvas = document.getElementById('photoCanvas');
+const canvasView = document.getElementById('canvasView');
 const canvasContainer = document.getElementById('canvasContainer');
 const selectionBox = document.getElementById('selectionBox');
 const canvasHint = document.getElementById('canvasHint');
@@ -17,11 +18,13 @@ const hslValue = document.getElementById('hslValue');
 const hslaValue = document.getElementById('hslaValue');
 const hsvValue = document.getElementById('hsvValue');
 const hsbValue = document.getElementById('hsbValue');
+const hclValue = document.getElementById('hclValue');
 const cmykValue = document.getElementById('cmykValue');
 const labValue = document.getElementById('labValue');
 const xyzValue = document.getElementById('xyzValue');
 const yuvValue = document.getElementById('yuvValue');
 const ycbcrValue = document.getElementById('ycbcrValue');
+const rybValue = document.getElementById('rybValue');
 const grayValue = document.getElementById('grayValue');
 const monoValue = document.getElementById('monoValue');
 const indexedValue = document.getElementById('indexedValue');
@@ -32,8 +35,19 @@ const dcip3Value = document.getElementById('dcip3Value');
 const displayp3Value = document.getElementById('displayp3Value');
 const rec709Value = document.getElementById('rec709Value');
 const rec2020Value = document.getElementById('rec2020Value');
-const hclValue = document.getElementById('hclValue');
-const rybValue = document.getElementById('rybValue');
+const lumaValue = document.getElementById('lumaValue');
+const luminanceValue = document.getElementById('luminanceValue');
+const brightnessValue = document.getElementById('brightnessValue');
+const valueValue = document.getElementById('valueValue');
+const lightnessValue = document.getElementById('lightnessValue');
+const intensityValue = document.getElementById('intensityValue');
+const chromaValue = document.getElementById('chromaValue');
+const chrominanceValue = document.getElementById('chrominanceValue');
+const saturationValue = document.getElementById('saturationValue');
+const hueValue = document.getElementById('hueValue');
+const alphaValue = document.getElementById('alphaValue');
+const premultipliedValue = document.getElementById('premultipliedValue');
+const straightValue = document.getElementById('straightValue');
 const previewName = document.getElementById('previewName');
 const previewHex = document.getElementById('previewHex');
 const swatch = document.getElementById('swatch');
@@ -46,9 +60,15 @@ let selectionStart = null;
 let selectionRect = null;
 let isSelecting = false;
 let zoomScale = 1;
+let translateX = 0;
+let translateY = 0;
 let isPinching = false;
 let pinchStartDistance = 0;
 let pinchStartScale = 1;
+let pinchStartMidpoint = null;
+let pinchAnchor = null;
+let startTranslateX = 0;
+let startTranslateY = 0;
 const minZoom = 1;
 const maxZoom = 4;
 const pointers = new Map();
@@ -272,6 +292,12 @@ function updateResult({ r, g, b }) {
   const mono = rgbToMono(r, g, b);
   const indexed = rgbToIndexedColor(r, g, b);
   const [hclH, hclC, hclL] = rgbToHcl(r, g, b);
+  const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  const luminance = (srgbToLinear(r) + srgbToLinear(g) + srgbToLinear(b)) / 3;
+  const brightness = Math.round((Math.max(r, g, b) / 255) * 100);
+  const intensity = Math.round((r + g + b) / 3);
+  const chroma = Math.round(Math.max(r, g, b) - Math.min(r, g, b));
+  const chrominance = Math.round(Math.sqrt(ycbcrCb * ycbcrCb + ycbcrCr * ycbcrCr));
 
   hexValue.textContent = hex;
   rgbValue.textContent = `rgb(${r}, ${g}, ${b})`;
@@ -280,11 +306,13 @@ function updateResult({ r, g, b }) {
   hslaValue.textContent = `hsla(${hslH}, ${hslS}%, ${hslL}%, 1)`;
   hsvValue.textContent = `hsv(${hsvH}, ${hsvS}%, ${hsvV}%)`;
   hsbValue.textContent = `hsb(${hsvH}, ${hsvS}%, ${hsvV}%)`;
+  hclValue.textContent = `${hclH}°, ${hclC}, ${hclL}`;
   cmykValue.textContent = `${c}%, ${m}%, ${y}%, ${k}%`;
   labValue.textContent = `${labL.toFixed(2)}, ${labA.toFixed(2)}, ${labB.toFixed(2)}`;
   xyzValue.textContent = `${xyzX.toFixed(2)}, ${xyzY.toFixed(2)}, ${xyzZ.toFixed(2)}`;
   yuvValue.textContent = `${yuvY}, ${yuvU}, ${yuvV}`;
   ycbcrValue.textContent = `${ycbcrY}, ${ycbcrCb}, ${ycbcrCr}`;
+  rybValue.textContent = rgbToRyb(r, g, b);
   grayValue.textContent = `${gray}`;
   monoValue.textContent = mono;
   indexedValue.textContent = indexed;
@@ -295,20 +323,28 @@ function updateResult({ r, g, b }) {
   displayp3Value.textContent = `rgb(${r}, ${g}, ${b})`;
   rec709Value.textContent = `rgb(${r}, ${g}, ${b})`;
   rec2020Value.textContent = `rgb(${r}, ${g}, ${b})`;
-  hclValue.textContent = `${hclH}°, ${hclC}, ${hclL}`;
-  rybValue.textContent = rgbToRyb(r, g, b);
+  lumaValue.textContent = `${luma.toFixed(2)}`;
+  luminanceValue.textContent = `${luminance.toFixed(4)}`;
+  brightnessValue.textContent = `${brightness}%`;
+  valueValue.textContent = `${hsvV}%`;
+  lightnessValue.textContent = `${hslL}%`;
+  intensityValue.textContent = `${intensity}`;
+  chromaValue.textContent = `${chroma}`;
+  chrominanceValue.textContent = `${chrominance}`;
+  saturationValue.textContent = `${hslS}%`;
+  hueValue.textContent = `${hslH}°`;
+  alphaValue.textContent = '1';
+  premultipliedValue.textContent = `rgba(${r}, ${g}, ${b}, 1)`;
+  straightValue.textContent = `rgba(${r}, ${g}, ${b}, 1)`;
   previewName.textContent = getNearestColorName({ r, g, b });
   previewHex.textContent = hex;
   swatch.style.background = hex;
 }
 
-function updateCanvasTransform() {
-  photoCanvas.style.transform = `scale(${zoomScale})`;
-  resetZoomBtn.classList.toggle('hidden', zoomScale <= 1);
-}
-
 function resetZoom() {
   zoomScale = 1;
+  translateX = 0;
+  translateY = 0;
   updateCanvasTransform();
 }
 
@@ -360,6 +396,140 @@ function drawImageToCanvas(image) {
   updateCanvasTransform();
   resetMode();
 }
+
+function updateCanvasTransform() {
+  canvasView.style.transform = `translate(${translateX}px, ${translateY}px) scale(${zoomScale})`;
+  resetZoomBtn.classList.toggle('hidden', zoomScale <= 1);
+}
+
+function getMidpoint(pointA, pointB) {
+  return {
+    x: (pointA.x + pointB.x) / 2,
+    y: (pointA.y + pointB.y) / 2,
+  };
+}
+
+function pointerToCanvasPosition(event) {
+  const rect = canvasView.getBoundingClientRect();
+  const clientX = event.clientX;
+  const clientY = event.clientY;
+  if (clientX == null || clientY == null) return null;
+  const x = Math.round((clientX - rect.left) / zoomScale);
+  const y = Math.round((clientY - rect.top) / zoomScale);
+  return { x, y };
+}
+
+photoCanvas.addEventListener('pointerdown', event => {
+  pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+
+  if (pointers.size === 2) {
+    isPinching = true;
+    const points = Array.from(pointers.values());
+    pinchStartDistance = pointerDistance(points[0], points[1]);
+    pinchStartMidpoint = getMidpoint(points[0], points[1]);
+    pinchStartScale = zoomScale;
+    startTranslateX = translateX;
+    startTranslateY = translateY;
+    const rect = canvasView.getBoundingClientRect();
+    const localX = (pinchStartMidpoint.x - rect.left - startTranslateX) / pinchStartScale;
+    const localY = (pinchStartMidpoint.y - rect.top - startTranslateY) / pinchStartScale;
+    pinchAnchor = { x: localX, y: localY };
+    event.preventDefault();
+    return;
+  }
+
+  if (currentMode !== 'box' || !loadedImage) return;
+
+  event.preventDefault();
+  isSelecting = true;
+  const pos = pointerToCanvasPosition(event);
+  if (!pos) return;
+  selectionStart = pos;
+  selectionRect = { x: pos.x, y: pos.y, width: 0, height: 0 };
+  selectionBox.style.left = `${pos.x}px`;
+  selectionBox.style.top = `${pos.y}px`;
+  selectionBox.style.width = '0px';
+  selectionBox.style.height = '0px';
+  selectionBox.classList.remove('hidden');
+});
+
+photoCanvas.addEventListener('pointermove', event => {
+  if (!pointers.has(event.pointerId)) return;
+  pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+
+  if (isPinching && pointers.size === 2) {
+    const points = Array.from(pointers.values());
+    const newDistance = pointerDistance(points[0], points[1]);
+    const nextScale = clamp(pinchStartScale * (newDistance / pinchStartDistance), minZoom, maxZoom);
+    const currentMidpoint = getMidpoint(points[0], points[1]);
+    const rect = canvasView.getBoundingClientRect();
+    translateX = currentMidpoint.x - rect.left - pinchAnchor.x * nextScale;
+    translateY = currentMidpoint.y - rect.top - pinchAnchor.y * nextScale;
+    zoomScale = nextScale;
+    updateCanvasTransform();
+    event.preventDefault();
+    return;
+  }
+
+  if (!isSelecting || currentMode !== 'box') return;
+
+  const pos = pointerToCanvasPosition(event);
+  if (!pos || !selectionStart) return;
+  const x = Math.min(selectionStart.x, pos.x);
+  const y = Math.min(selectionStart.y, pos.y);
+  const width = Math.abs(pos.x - selectionStart.x);
+  const height = Math.abs(pos.y - selectionStart.y);
+  selectionRect = { x, y, width, height };
+  selectionBox.style.left = `${x}px`;
+  selectionBox.style.top = `${y}px`;
+  selectionBox.style.width = `${width}px`;
+  selectionBox.style.height = `${height}px`;
+});
+
+photoCanvas.addEventListener('pointerup', event => {
+  if (!pointers.has(event.pointerId)) return;
+  pointers.delete(event.pointerId);
+
+  if (currentMode === 'box' && isSelecting && pointers.size === 0) {
+    isSelecting = false;
+    if (!selectionRect) return;
+    const clamped = clampRect({
+      x: Math.round(selectionRect.x / zoomScale),
+      y: Math.round(selectionRect.y / zoomScale),
+      width: Math.round(selectionRect.width / zoomScale),
+      height: Math.round(selectionRect.height / zoomScale),
+    });
+    processAverageBox(clamped.x, clamped.y, clamped.width, clamped.height);
+    return;
+  }
+
+  if (currentMode === 'pixel' && loadedImage && pointers.size === 0) {
+    const pos = pointerToCanvasPosition(event);
+    if (!pos) return;
+    const x = Math.min(Math.max(0, pos.x), photoCanvas.width - 1);
+    const y = Math.min(Math.max(0, pos.y), photoCanvas.height - 1);
+    processPixel(x, y);
+  }
+
+  if (isPinching && pointers.size < 2) {
+    isPinching = false;
+    pinchStartDistance = 0;
+    pinchAnchor = null;
+  }
+});
+
+photoCanvas.addEventListener('pointercancel', event => {
+  pointers.delete(event.pointerId);
+  if (currentMode === 'box' && isSelecting) {
+    isSelecting = false;
+    selectionBox.classList.add('hidden');
+  }
+  if (isPinching && pointers.size < 2) {
+    isPinching = false;
+    pinchStartDistance = 0;
+    pinchAnchor = null;
+  }
+});
 
 function processAverageImage() {
   if (!loadedImage) return;
@@ -418,118 +588,13 @@ function clampRect(rect) {
   return { x, y, width, height };
 }
 
-function pointerToCanvasPosition(event) {
-  const rect = photoCanvas.getBoundingClientRect();
-  const clientX = event.clientX;
-  const clientY = event.clientY;
-  if (clientX == null || clientY == null) return null;
-  const x = Math.round((clientX - rect.left) / zoomScale);
-  const y = Math.round((clientY - rect.top) / zoomScale);
-  return { x, y };
+function pointerDistance(a, b) {
+  return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
 function pointerDistance(a, b) {
   return Math.hypot(a.x - b.x, a.y - b.y);
 }
-
-photoCanvas.addEventListener('pointerdown', event => {
-  pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
-  photoCanvas.setPointerCapture(event.pointerId);
-  if (pointers.size === 2) {
-    isPinching = true;
-    const points = Array.from(pointers.values());
-    pinchStartDistance = pointerDistance(points[0], points[1]);
-    pinchStartScale = zoomScale;
-    return;
-  }
-
-  if (currentMode !== 'box' || !loadedImage || isPinching) return;
-  event.preventDefault();
-  isSelecting = true;
-  const pos = pointerToCanvasPosition(event);
-  if (!pos) return;
-  selectionStart = pos;
-  selectionRect = { x: pos.x, y: pos.y, width: 0, height: 0 };
-  selectionBox.style.left = `${pos.x}px`;
-  selectionBox.style.top = `${pos.y}px`;
-  selectionBox.style.width = '0px';
-  selectionBox.style.height = '0px';
-  selectionBox.classList.remove('hidden');
-});
-
-photoCanvas.addEventListener('pointermove', event => {
-  if (!pointers.has(event.pointerId)) return;
-  pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
-
-  if (isPinching && pointers.size === 2) {
-    const points = Array.from(pointers.values());
-    const newDistance = pointerDistance(points[0], points[1]);
-    const nextScale = clamp(pinchStartScale * (newDistance / pinchStartDistance), minZoom, maxZoom);
-    if (nextScale !== zoomScale) {
-      zoomScale = nextScale;
-      updateCanvasTransform();
-    }
-    return;
-  }
-
-  if (!isSelecting || currentMode !== 'box') return;
-  const pos = pointerToCanvasPosition(event);
-  if (!pos || !selectionStart) return;
-  const x = Math.min(selectionStart.x, pos.x);
-  const y = Math.min(selectionStart.y, pos.y);
-  const width = Math.abs(pos.x - selectionStart.x);
-  const height = Math.abs(pos.y - selectionStart.y);
-  selectionRect = { x, y, width, height };
-  selectionBox.style.left = `${x}px`;
-  selectionBox.style.top = `${y}px`;
-  selectionBox.style.width = `${width}px`;
-  selectionBox.style.height = `${height}px`;
-});
-
-photoCanvas.addEventListener('pointerup', event => {
-  if (!pointers.has(event.pointerId)) return;
-  pointers.delete(event.pointerId);
-  photoCanvas.releasePointerCapture(event.pointerId);
-
-  if (isPinching && pointers.size < 2) {
-    isPinching = false;
-    pinchStartDistance = 0;
-  }
-
-  if (currentMode === 'box' && isSelecting && pointers.size === 0) {
-    isSelecting = false;
-    if (!selectionRect) return;
-    const clamped = clampRect({
-      x: Math.round(selectionRect.x / zoomScale),
-      y: Math.round(selectionRect.y / zoomScale),
-      width: Math.round(selectionRect.width / zoomScale),
-      height: Math.round(selectionRect.height / zoomScale),
-    });
-    processAverageBox(clamped.x, clamped.y, clamped.width, clamped.height);
-    return;
-  }
-
-  if (currentMode === 'pixel' && loadedImage && !isPinching && pointers.size === 0) {
-    const pos = pointerToCanvasPosition(event);
-    if (!pos) return;
-    const x = Math.min(Math.max(0, pos.x), photoCanvas.width - 1);
-    const y = Math.min(Math.max(0, pos.y), photoCanvas.height - 1);
-    processPixel(x, y);
-  }
-});
-
-photoCanvas.addEventListener('pointercancel', event => {
-  if (currentMode === 'box' && isSelecting) {
-    isSelecting = false;
-    selectionBox.classList.add('hidden');
-  }
-  pointers.delete(event.pointerId);
-  photoCanvas.releasePointerCapture(event.pointerId);
-  if (isPinching && pointers.size < 2) {
-    isPinching = false;
-    pinchStartDistance = 0;
-  }
-});
 
 resetZoomBtn.addEventListener('click', resetZoom);
 
