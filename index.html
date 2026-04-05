@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Color Finder</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="app-shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Color Finder</p>
+        <h1>Find colors from photos</h1>
+        <p class="lead">Upload an image or take a photo, then check the average color, a box area, or any pixel color instantly.</p>
+      </div>
+    </header>
+
+    <section class="panel upload-panel">
+      <label class="upload-label" for="imageInput">
+        <span>Choose an image</span>
+        <input id="imageInput" type="file" accept="image/*" capture="environment" />
+      </label>
+      <p class="note">Use the camera or gallery on mobile devices.</p>
+    </section>
+
+    <section class="panel image-panel">
+      <div class="canvas-container" id="canvasContainer">
+        <canvas id="photoCanvas"></canvas>
+        <div id="selectionBox" class="selection-box hidden"></div>
+        <div id="canvasHint" class="canvas-hint">Upload an image to start.</div>
+      </div>
+
+      <div class="button-row">
+        <button id="avgImageBtn" class="secondary-btn">Average color of image</button>
+        <button id="avgBoxBtn" class="secondary-btn">Average color from box</button>
+        <button id="pixelBtn" class="secondary-btn">Pick pixel color</button>
+      </div>
+      <p id="modeText" class="mode-text">Upload an image to enable tools.</p>
+    </section>
+
+    <section class="panel output-panel">
+      <h2>Result</h2>
+      <div class="result-grid">
+        <div class="result-card">
+          <span class="result-label">Hex</span>
+          <strong id="hexValue">#FFFFFF</strong>
+        </div>
+        <div class="result-card">
+          <span class="result-label">RGB</span>
+          <strong id="rgbValue">rgb(255, 255, 255)</strong>
+        </div>
+        <div class="result-card">
+          <span class="result-label">Color name</span>
+          <strong id="nameValue">White</strong>
+        </div>
+        <div class="result-card swatch-card">
+          <span class="result-label">Preview</span>
+          <div id="swatch" class="color-swatch"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
