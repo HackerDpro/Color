@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Color Finder</title>
+  <title>Average Color</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -12,22 +12,22 @@
       <div>
         <p class="eyebrow">Color Finder</p>
         <h1>Find colors from photos</h1>
-        <p class="lead">Upload an image or take a photo, then check the average color, a box area, or any pixel color instantly.</p>
+        <p class="lead">Find the average color, average color from a box area, or any pixel color instantly.</p>
       </div>
     </header>
 
     <section class="panel upload-panel">
       <label class="upload-label" for="imageInput">
         <span>Choose an image</span>
-        <input id="imageInput" type="file" accept="image/*" capture="environment" />
+        <input id="imageInput" type="file" accept="image/*" />
       </label>
-      <p class="note">Use the camera or gallery on mobile devices.</p>
     </section>
 
     <section class="panel image-panel">
       <div class="canvas-container" id="canvasContainer">
         <canvas id="photoCanvas"></canvas>
         <div id="selectionBox" class="selection-box hidden"></div>
+        <button id="resetZoomBtn" class="zoom-reset hidden" type="button">Reset zoom</button>
         <div id="canvasHint" class="canvas-hint">Upload an image to start.</div>
       </div>
 
@@ -40,23 +40,187 @@
     </section>
 
     <section class="panel output-panel">
-      <h2>Result</h2>
       <div class="result-grid">
+        <div class="result-card preview-card full-width">
+          <div class="card-top">
+            <span class="result-label">Preview</span>
+            <button class="copy-btn" type="button" data-copy-target="hexValue">Copy</button>
+          </div>
+          <div class="preview-row">
+            <div id="swatch" class="color-swatch"></div>
+            <div class="preview-text">
+              <strong id="previewName">White</strong>
+              <span id="previewHex">#FFFFFF</span>
+            </div>
+          </div>
+        </div>
         <div class="result-card">
-          <span class="result-label">Hex</span>
+          <div class="card-top">
+            <span class="result-label">HEX</span>
+            <button class="copy-btn" type="button" data-copy-target="hexValue">Copy</button>
+          </div>
           <strong id="hexValue">#FFFFFF</strong>
         </div>
         <div class="result-card">
-          <span class="result-label">RGB</span>
+          <div class="card-top">
+            <span class="result-label">RGB</span>
+            <button class="copy-btn" type="button" data-copy-target="rgbValue">Copy</button>
+          </div>
           <strong id="rgbValue">rgb(255, 255, 255)</strong>
         </div>
         <div class="result-card">
-          <span class="result-label">Color name</span>
-          <strong id="nameValue">White</strong>
+          <div class="card-top">
+            <span class="result-label">RGBA</span>
+            <button class="copy-btn" type="button" data-copy-target="rgbaValue">Copy</button>
+          </div>
+          <strong id="rgbaValue">rgba(255, 255, 255, 1)</strong>
         </div>
-        <div class="result-card swatch-card">
-          <span class="result-label">Preview</span>
-          <div id="swatch" class="color-swatch"></div>
+        <div class="result-card">
+          <div class="card-top">
+            <span class="result-label">HSL</span>
+            <button class="copy-btn" type="button" data-copy-target="hslValue">Copy</button>
+          </div>
+          <strong id="hslValue">hsl(0, 0%, 100%)</strong>
+        </div>
+        <div class="result-card">
+          <div class="card-top">
+            <span class="result-label">HSLA</span>
+            <button class="copy-btn" type="button" data-copy-target="hslaValue">Copy</button>
+          </div>
+          <strong id="hslaValue">hsla(0, 0%, 100%, 1)</strong>
+        </div>
+        <div class="result-card">
+          <div class="card-top">
+            <span class="result-label">HSV</span>
+            <button class="copy-btn" type="button" data-copy-target="hsvValue">Copy</button>
+          </div>
+          <strong id="hsvValue">hsv(0, 0%, 100%)</strong>
+        </div>
+        <div class="result-card">
+          <div class="card-top">
+            <span class="result-label">HSB</span>
+            <button class="copy-btn" type="button" data-copy-target="hsbValue">Copy</button>
+          </div>
+          <strong id="hsbValue">hsb(0, 0%, 100%)</strong>
+        </div>
+        <div class="result-card">
+          <div class="card-top">
+            <span class="result-label">CMYK</span>
+            <button class="copy-btn" type="button" data-copy-target="cmykValue">Copy</button>
+          </div>
+          <strong id="cmykValue">0%, 0%, 0%, 0%</strong>
+        </div>
+        <div class="result-card">
+          <div class="card-top">
+            <span class="result-label">LAB</span>
+            <button class="copy-btn" type="button" data-copy-target="labValue">Copy</button>
+          </div>
+          <strong id="labValue">100.00, 0.00, 0.00</strong>
+        </div>
+        <div class="result-card">
+          <div class="card-top">
+            <span class="result-label">XYZ</span>
+            <button class="copy-btn" type="button" data-copy-target="xyzValue">Copy</button>
+          </div>
+          <strong id="xyzValue">95.05, 100.00, 108.88</strong>
+        </div>
+        <div class="result-card">
+          <div class="card-top">
+            <span class="result-label">YUV</span>
+            <button class="copy-btn" type="button" data-copy-target="yuvValue">Copy</button>
+          </div>
+          <strong id="yuvValue">255.00, 0.00, 0.00</strong>
+        </div>
+        <div class="result-card">
+          <div class="card-top">
+            <span class="result-label">YCbCr</span>
+            <button class="copy-btn" type="button" data-copy-target="ycbcrValue">Copy</button>
+          </div>
+          <strong id="ycbcrValue">255.00, 128.00, 128.00</strong>
+        </div>
+        <div class="result-card">
+          <div class="card-top">
+            <span class="result-label">Grayscale</span>
+            <button class="copy-btn" type="button" data-copy-target="grayValue">Copy</button>
+          </div>
+          <strong id="grayValue">255</strong>
+        </div>
+        <div class="result-card">
+          <div class="card-top">
+            <span class="result-label">Monochrome</span>
+            <button class="copy-btn" type="button" data-copy-target="monoValue">Copy</button>
+          </div>
+          <strong id="monoValue">White</strong>
+        </div>
+        <div class="result-card">
+          <div class="card-top">
+            <span class="result-label">Indexed Color</span>
+            <button class="copy-btn" type="button" data-copy-target="indexedValue">Copy</button>
+          </div>
+          <strong id="indexedValue">#FFFFFF</strong>
+        </div>
+        <div class="result-card">
+          <div class="card-top">
+            <span class="result-label">sRGB</span>
+            <button class="copy-btn" type="button" data-copy-target="srgbValue">Copy</button>
+          </div>
+          <strong id="srgbValue">rgb(255, 255, 255)</strong>
+        </div>
+        <div class="result-card">
+          <div class="card-top">
+            <span class="result-label">Adobe RGB</span>
+            <button class="copy-btn" type="button" data-copy-target="adobeValue">Copy</button>
+          </div>
+          <strong id="adobeValue">rgb(255, 255, 255)</strong>
+        </div>
+        <div class="result-card">
+          <div class="card-top">
+            <span class="result-label">ProPhoto RGB</span>
+            <button class="copy-btn" type="button" data-copy-target="prophotoValue">Copy</button>
+          </div>
+          <strong id="prophotoValue">rgb(255, 255, 255)</strong>
+        </div>
+        <div class="result-card">
+          <div class="card-top">
+            <span class="result-label">DCI-P3</span>
+            <button class="copy-btn" type="button" data-copy-target="dcip3Value">Copy</button>
+          </div>
+          <strong id="dcip3Value">rgb(255, 255, 255)</strong>
+        </div>
+        <div class="result-card">
+          <div class="card-top">
+            <span class="result-label">Display P3</span>
+            <button class="copy-btn" type="button" data-copy-target="displayp3Value">Copy</button>
+          </div>
+          <strong id="displayp3Value">rgb(255, 255, 255)</strong>
+        </div>
+        <div class="result-card">
+          <div class="card-top">
+            <span class="result-label">Rec. 709</span>
+            <button class="copy-btn" type="button" data-copy-target="rec709Value">Copy</button>
+          </div>
+          <strong id="rec709Value">rgb(255, 255, 255)</strong>
+        </div>
+        <div class="result-card">
+          <div class="card-top">
+            <span class="result-label">Rec. 2020</span>
+            <button class="copy-btn" type="button" data-copy-target="rec2020Value">Copy</button>
+          </div>
+          <strong id="rec2020Value">rgb(255, 255, 255)</strong>
+        </div>
+        <div class="result-card">
+          <div class="card-top">
+            <span class="result-label">HCL</span>
+            <button class="copy-btn" type="button" data-copy-target="hclValue">Copy</button>
+          </div>
+          <strong id="hclValue">0°, 0, 100</strong>
+        </div>
+        <div class="result-card">
+          <div class="card-top">
+            <span class="result-label">RYB</span>
+            <button class="copy-btn" type="button" data-copy-target="rybValue">Copy</button>
+          </div>
+          <strong id="rybValue">rgb(255, 255, 255)</strong>
         </div>
       </div>
     </section>

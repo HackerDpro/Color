@@ -118,6 +118,7 @@ h1 {
   overflow: hidden;
   background: #0f172a;
   border: 1px solid rgba(148, 163, 184, 0.16);
+  touch-action: none;
 }
 
 canvas {
@@ -125,6 +126,7 @@ canvas {
   height: auto;
   display: block;
   touch-action: none;
+  transform-origin: top left;
 }
 
 .canvas-hint {
@@ -144,8 +146,7 @@ canvas {
 }
 
 .primary-btn,
-.secondary-btn,
-button {
+.secondary-btn {
   border: none;
   border-radius: 16px;
   padding: 14px 18px;
@@ -155,6 +156,33 @@ button {
   transition: transform 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
 }
 
+button.copy-btn,
+button.zoom-reset {
+  border: none;
+  border-radius: 12px;
+  padding: 8px 10px;
+  font-size: 0.78rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 0.16s ease, background 0.16s ease, color 0.16s ease;
+}
+
+button.copy-btn {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+}
+
+button.zoom-reset {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(15, 23, 42, 0.92);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  color: var(--text);
+  z-index: 10;
+}
+
+.primary-btn,
 .active-btn {
   background: linear-gradient(135deg, var(--accent), var(--accent-strong));
   color: #0f172a;
@@ -167,7 +195,8 @@ button {
 
 .primary-btn:hover,
 .secondary-btn:hover,
-.mode-btn:hover {
+button.copy-btn:hover,
+button.zoom-reset:hover {
   transform: translateY(-1px);
 }
 
@@ -177,14 +206,18 @@ button {
   line-height: 1.6;
 }
 
+.zoom-reset.hidden {
+  display: none !important;
+}
+
 .output-panel h2 {
   margin-top: 0;
 }
 
 .result-grid {
   display: grid;
-  gap: 16px;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 }
 
 .result-card {
@@ -192,6 +225,41 @@ button {
   border: 1px solid rgba(148, 163, 184, 0.14);
   border-radius: 18px;
   padding: 18px;
+}
+
+.result-card.full-width {
+  grid-column: 1 / -1;
+}
+
+.card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.preview-row {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 12px;
+  align-items: center;
+}
+
+.preview-text strong {
+  display: block;
+  font-size: 1rem;
+  margin-bottom: 6px;
+}
+
+.preview-text span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.copy-btn {
+  min-width: 68px;
 }
 
 .result-label {
