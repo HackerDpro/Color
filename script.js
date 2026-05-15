@@ -361,7 +361,7 @@ function resetZoom() {
 function resetMode() {
   currentMode = 'none';
   selectionBox.classList.add('hidden');
-  modeText.textContent = 'Choose a tool and interact with the image after upload.';
+  modeText.textContent = 'Choose a tool and interact with the image.';
   buttons.forEach(button => button.classList.remove('active-btn'));
 }
 
