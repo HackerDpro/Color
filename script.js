@@ -375,15 +375,15 @@ function setMode(mode) {
   buttons.forEach(button => button.classList.remove('active-btn'));
   if (mode === 'box') {
     avgBoxBtn.classList.add('active-btn');
-    modeText.textContent = 'Draw a box on the image to average that area.';
+    modeText.textContent = 'Draw a box on the image.';
   } else if (mode === 'pixel') {
     pixelBtn.classList.add('active-btn');
-    modeText.textContent = 'Tap or click a pixel on the image to see its color.';
+    modeText.textContent = 'Tap or click a pixel on the image.';
   } else if (mode === 'image') {
     avgImageBtn.classList.add('active-btn');
-    modeText.textContent = 'Processing the average color of the entire image.';
+    modeText.textContent = 'verage color of the entire image.';
   } else {
-    modeText.textContent = 'Choose a tool and interact with the image after upload.';
+    modeText.textContent = 'Choose a tool and interact with the image.';
   }
 }
 
